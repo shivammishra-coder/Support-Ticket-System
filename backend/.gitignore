@@ -1,0 +1,49 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+myvenv/
+venv/
+.env/
+.venv/
+
+# Environment variables
+.env
+.env.*
+
+# Keep example env
+!.env.example
+
+# Database files
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build files
+build/
+dist/
+*.egg-info/
+
+# Type checker cache
+.mypy_cache/
+.pyre/
+
+# FastAPI/Uvicorn
+uvicorn.log
