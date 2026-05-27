@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar'
 import { StatusBadge, PriorityBadge } from '../components/StatusBadge'
 import CommentThread from '../components/CommentThread'
 import HistoryTimeline from '../components/HistoryTimeline'
+import { useAuth } from '../context/AuthContext' // 1. Imported useAuth
 
 const ALLOWED_TRANSITIONS = {
   open: ['in_progress'],
@@ -16,6 +17,7 @@ const ALLOWED_TRANSITIONS = {
 export default function AgentTicketDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { user } = useAuth() // 2. Destructured user
   const [ticket, setTicket] = useState(null)
   const [history, setHistory] = useState([])
   const [loading, setLoading] = useState(true)
@@ -37,6 +39,12 @@ export default function AgentTicketDetail() {
   useEffect(() => { fetchAll() }, [id])
 
   const handleStatusChange = async (newStatus) => {
+    // Optional fallback safety check
+    if (!ticket.assigned_to || !user || ticket.assigned_to.id !== user.id) {
+      setStatusError("You are not authorized to change this ticket's status.")
+      return
+    }
+
     setStatusLoading(true)
     setStatusError('')
     try {
@@ -53,8 +61,10 @@ export default function AgentTicketDetail() {
   if (!ticket) return <div style={{ padding: '40px', color: '#ef4444', fontFamily: 'sans-serif' }}>Ticket not found.</div>
 
   const allowedNext = ALLOWED_TRANSITIONS[ticket.status] || []
-
   const STATUS_LABELS = { in_progress: 'In Progress', resolved: 'Resolved', closed: 'Closed', open: 'Open' }
+  
+  // Check if the current user is the owner of the ticket
+  const isAssignedToMe = ticket.assigned_to && user && ticket.assigned_to.id === user.id
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc', fontFamily: "'DM Sans', sans-serif" }}>
@@ -85,25 +95,34 @@ export default function AgentTicketDetail() {
             {ticket.assigned_to && <span>🔧 Assigned to: {ticket.assigned_to.name}</span>}
           </div>
 
-          {/* Status Actions */}
-          {allowedNext.length > 0 && (
-            <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
-              <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 8px', fontWeight: 500 }}>Move to:</p>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {allowedNext.map(s => (
-                  <button key={s} onClick={() => handleStatusChange(s)} disabled={statusLoading}
-                    style={{
-                      background: '#0f172a', color: '#fff', border: 'none',
-                      padding: '8px 16px', borderRadius: '7px', fontSize: '13px',
-                      fontWeight: 500, cursor: 'pointer', opacity: statusLoading ? 0.6 : 1,
-                    }}>
-                    → {STATUS_LABELS[s]}
-                  </button>
-                ))}
+          {/* Status Actions (Conditional Check) */}
+          {isAssignedToMe ? (
+            allowedNext.length > 0 && (
+              <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
+                <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 8px', fontWeight: 500 }}>Move to:</p>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {allowedNext.map(s => (
+                    <button key={s} onClick={() => handleStatusChange(s)} disabled={statusLoading}
+                      style={{
+                        background: '#0f172a', color: '#fff', border: 'none',
+                        padding: '8px 16px', borderRadius: '7px', fontSize: '13px',
+                        fontWeight: 500, cursor: 'pointer', opacity: statusLoading ? 0.6 : 1,
+                      }}>
+                      → {STATUS_LABELS[s]}
+                    </button>
+                  ))}
+                </div>
+                {statusError && <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '8px' }}>{statusError}</p>}
               </div>
-              {statusError && <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '8px' }}>{statusError}</p>}
+            )
+          ) : (
+            <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
+              <p style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic', margin: 0 }}>
+                🔒 Only the assigned agent can modify this ticket's status.
+              </p>
             </div>
           )}
+
           {ticket.status === 'closed' && (
             <p style={{ marginTop: '12px', fontSize: '13px', color: '#94a3b8' }}>This ticket is closed.</p>
           )}

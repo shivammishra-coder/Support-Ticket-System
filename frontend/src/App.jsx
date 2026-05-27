@@ -10,6 +10,7 @@ import AgentQueue            from './pages/AgentQueue'
 import AgentTicketDetail     from './pages/AgentTicketDetail'
 import AdminTicketList       from './pages/AdminTicketList'
 import AdminDashboard        from './pages/AdminDashboard'
+import AgentDashboard from './pages/AgentDashboard'
 
 function HomeRedirect() {
   const { user } = useAuth()
@@ -72,7 +73,7 @@ export default function App() {
           } />
           <Route path="/dashboard/agent" element={
             <ProtectedRoute roles={['support_agent', 'admin']}>
-              <AgentQueue />
+              <AgentDashboard/>
             </ProtectedRoute>
           } />
 
