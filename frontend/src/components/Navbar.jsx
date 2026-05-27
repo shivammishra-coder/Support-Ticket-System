@@ -4,7 +4,11 @@ import { useAuth } from '../context/AuthContext'
 const NAV_LINKS = {
   employee:      [{ to: '/my-tickets', label: 'My Tickets' }],
   support_agent: [{ to: '/agent/queue', label: 'Queue' }, { to: '/dashboard/agent', label: 'Dashboard' }],
-  admin:         [{ to: '/admin/tickets', label: 'All Tickets' }, { to: '/dashboard/admin', label: 'Dashboard' }],
+  admin:         [
+    { to: '/admin/tickets', label: 'All Tickets' },
+    { to: '/dashboard/admin', label: 'Dashboard' },
+    { to: '/admin/register', label: '+ New User' },  // admin-only register link
+  ],
 }
 
 export default function Navbar() {
@@ -33,11 +37,12 @@ export default function Navbar() {
         <div style={{ display: 'flex', gap: '24px' }}>
           {links.map(link => (
             <Link key={link.to} to={link.to} style={{
-              color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: 500,
+              color: link.label === '+ New User' ? '#60a5fa' : '#94a3b8',
+              textDecoration: 'none', fontSize: '14px', fontWeight: 500,
               transition: 'color 0.15s',
             }}
               onMouseEnter={e => e.target.style.color = '#fff'}
-              onMouseLeave={e => e.target.style.color = '#94a3b8'}
+              onMouseLeave={e => e.target.style.color = link.label === '+ New User' ? '#60a5fa' : '#94a3b8'}
             >
               {link.label}
             </Link>
@@ -47,10 +52,9 @@ export default function Navbar() {
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <span style={{ fontSize: '13px', color: '#94a3b8' }}>
-          {user?.name} · <span style={{
-            textTransform: 'capitalize',
-            color: '#60a5fa',
-          }}>{user?.role?.replace('_', ' ')}</span>
+          {user?.name} · <span style={{ color: '#60a5fa' }}>
+            {user?.role?.replace('_', ' ')}
+          </span>
         </span>
         <button onClick={handleLogout} style={{
           background: 'transparent', border: '1px solid #334155',

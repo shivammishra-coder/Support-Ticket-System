@@ -58,8 +58,7 @@ export default function LoginPage() {
               style={{
                 width: '100%', padding: '10px 14px', borderRadius: '8px',
                 background: '#0f172a', border: '1px solid #334155',
-                color: '#f1f5f9', fontSize: '14px', outline: 'none',
-                boxSizing: 'border-box',
+                color: '#f1f5f9', fontSize: '14px', outline: 'none', boxSizing: 'border-box',
               }}
             />
           </div>
@@ -73,8 +72,7 @@ export default function LoginPage() {
               style={{
                 width: '100%', padding: '10px 14px', borderRadius: '8px',
                 background: '#0f172a', border: '1px solid #334155',
-                color: '#f1f5f9', fontSize: '14px', outline: 'none',
-                boxSizing: 'border-box',
+                color: '#f1f5f9', fontSize: '14px', outline: 'none', boxSizing: 'border-box',
               }}
             />
           </div>
@@ -92,23 +90,19 @@ export default function LoginPage() {
             background: '#3b82f6', color: '#fff', border: 'none',
             padding: '12px', borderRadius: '8px', fontSize: '15px',
             fontWeight: 600, cursor: 'pointer', marginTop: '8px',
-            opacity: loading ? 0.7 : 1, transition: 'background 0.15s',
+            opacity: loading ? 0.7 : 1,
           }}>
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
-        <div style={{ marginTop: '24px', padding: '16px', background: '#0f172a', borderRadius: '8px' }}>
-          <p style={{ color: '#64748b', fontSize: '12px', margin: '0 0 8px', fontWeight: 600 }}>DEMO CREDENTIALS</p>
-          {[
-            ['Admin', 'admin@company.com', 'admin123'],
-            ['Agent', 'bob@company.com', 'agent123'],
-            ['Employee', 'dave@company.com', 'emp123'],
-          ].map(([role, em, pw]) => (
-            <div key={role} style={{ fontSize: '12px', color: '#475569', marginBottom: '4px' }}>
-              <span style={{ color: '#60a5fa', fontWeight: 600 }}>{role}:</span> {em} / {pw}
-            </div>
-          ))}
+        {/* Note about registration */}
+        <div style={{
+          marginTop: '20px', padding: '12px 16px',
+          background: '#0f172a', borderRadius: '8px',
+          fontSize: '13px', color: '#64748b', textAlign: 'center',
+        }}>
+          🔒 Account creation is managed by your admin.
         </div>
       </div>
     </div>

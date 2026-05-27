@@ -2,13 +2,14 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 
-import LoginPage            from './pages/LoginPage'
-import EmployeeTickets      from './pages/EmployeeTickets'
-import EmployeeTicketDetail from './pages/EmployeeTicketDetail'
-import AgentQueue           from './pages/AgentQueue'
-import AgentTicketDetail    from './pages/AgentTicketDetail'
-import AdminTicketList      from './pages/AdminTicketList'
-import AdminDashboard       from './pages/AdminDashboard'
+import LoginPage             from './pages/LoginPage'
+import RegisterPage          from './pages/RegisterPage'
+import EmployeeTickets       from './pages/EmployeeTickets'
+import EmployeeTicketDetail  from './pages/EmployeeTicketDetail'
+import AgentQueue            from './pages/AgentQueue'
+import AgentTicketDetail     from './pages/AgentTicketDetail'
+import AdminTicketList       from './pages/AdminTicketList'
+import AdminDashboard        from './pages/AdminDashboard'
 
 function HomeRedirect() {
   const { user } = useAuth()
@@ -72,6 +73,13 @@ export default function App() {
           <Route path="/dashboard/agent" element={
             <ProtectedRoute roles={['support_agent', 'admin']}>
               <AgentQueue />
+            </ProtectedRoute>
+          } />
+
+          {/* Admin-only register page */}
+          <Route path="/admin/register" element={
+            <ProtectedRoute roles={['admin']}>
+              <RegisterPage />
             </ProtectedRoute>
           } />
 
