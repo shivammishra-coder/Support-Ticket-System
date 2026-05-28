@@ -82,6 +82,7 @@ export default function AgentDashboard() {
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
                 <thead>
                   <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569', fontWeight: 600 }}>
+                    <th style={{ padding: '14px 20px', width: '60px' }}>ID</th>
                     <th style={{ padding: '14px 20px' }}>Ticket Info</th>
                     <th style={{ padding: '14px 20px' }}>Category</th>
                     <th style={{ padding: '14px 20px' }}>Priority</th>
@@ -102,6 +103,9 @@ export default function AgentDashboard() {
                       onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
                       onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                     >
+                      <td style={{ padding: '16px 20px', fontWeight: 600, color: '#64748b' }}>
+                        {ticket.id}
+                      </td>
                       <td style={{ padding: '16px 20px' }}>
                         <div style={{ fontWeight: 600, color: '#0f172a', marginBottom: '4px' }}>{ticket.title}</div>
                         <div style={{ color: '#64748b', fontSize: '13px' }}>User: {ticket.created_by?.name}</div>

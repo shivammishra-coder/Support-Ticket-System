@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import api from '../api/axios'
 
-export default function CommentThread({ ticketId, comments, onCommentAdded }) {
+export default function CommentThread({ ticketId, comments = [], onCommentAdded }) {
   const { user } = useAuth()
   const [body, setBody] = useState('')
   const [isInternal, setIsInternal] = useState(false)
@@ -11,7 +11,8 @@ export default function CommentThread({ ticketId, comments, onCommentAdded }) {
 
   const isAgentOrAdmin = user?.role === 'support_agent' || user?.role === 'admin'
 
-  // Employees only see public comments
+  // The backend already filters comments securely, but we keep this 
+  // as a fallback safeguard for matching local UI states.
   const visibleComments = isAgentOrAdmin
     ? comments
     : comments.filter(c => !c.is_internal)
@@ -53,7 +54,7 @@ export default function CommentThread({ ticketId, comments, onCommentAdded }) {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
               <span style={{ fontWeight: 600, fontSize: '13px', color: '#334155' }}>
-                {c.author.name}
+                {c.author?.name || 'Unknown User'}
                 {c.is_internal && (
                   <span style={{ marginLeft: '8px', fontSize: '11px', color: '#b45309', background: '#fef3c7', padding: '2px 8px', borderRadius: '10px' }}>
                     Internal Note
@@ -61,7 +62,7 @@ export default function CommentThread({ ticketId, comments, onCommentAdded }) {
                 )}
               </span>
               <span style={{ fontSize: '12px', color: '#94a3b8' }}>
-                {new Date(c.created_at).toLocaleString()}
+                {c.created_at ? new Date(c.created_at).toLocaleString() : ''}
               </span>
             </div>
             <p style={{ margin: 0, fontSize: '14px', color: '#475569', lineHeight: '1.5' }}>{c.body}</p>

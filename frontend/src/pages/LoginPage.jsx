@@ -38,7 +38,7 @@ export default function LoginPage() {
         boxShadow: '0 25px 50px rgba(0,0,0,0.5)',
       }}>
         <div style={{ marginBottom: '32px' }}>
-          <div style={{ fontSize: '28px', marginBottom: '8px' }}>🎫</div>
+          
           <h1 style={{ color: '#f1f5f9', fontSize: '24px', fontWeight: 700, margin: '0 0 6px' }}>
             HelpDesk
           </h1>
@@ -96,14 +96,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Note about registration */}
-        <div style={{
-          marginTop: '20px', padding: '12px 16px',
-          background: '#0f172a', borderRadius: '8px',
-          fontSize: '13px', color: '#64748b', textAlign: 'center',
-        }}>
-          🔒 Account creation is managed by your admin.
-        </div>
+       
       </div>
     </div>
   )

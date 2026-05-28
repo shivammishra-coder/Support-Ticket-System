@@ -70,12 +70,12 @@ export default function AdminTicketList() {
         {loading ? <p style={{ color: '#94a3b8' }}>Loading...</p> : (
           <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
             <div style={{
-              display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 1fr',
+              display: 'grid', gridTemplateColumns: '60px 2fr 1fr 1fr 1fr 1fr 1fr',
               padding: '12px 20px', background: '#f8fafc',
               borderBottom: '1px solid #e2e8f0', fontSize: '12px',
               fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px',
             }}>
-              <span>Title</span><span>Category</span><span>Priority</span><span>Status</span>
+              <span>ID</span><span>Title</span><span>Category</span><span>Priority</span><span>Status</span>
               <span>Raised By</span><span>Assigned To</span>
             </div>
             {filtered.length === 0 && (
@@ -85,7 +85,7 @@ export default function AdminTicketList() {
               <div key={t.id}
                 onClick={() => navigate(`/admin/tickets/${t.id}`)}
                 style={{
-                  display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 1fr',
+                  display: 'grid', gridTemplateColumns: '60px 2fr 1fr 1fr 1fr 1fr 1fr',
                   padding: '14px 20px', alignItems: 'center',
                   borderBottom: i < filtered.length - 1 ? '1px solid #f1f5f9' : 'none',
                   cursor: 'pointer', transition: 'background 0.1s',
@@ -93,6 +93,7 @@ export default function AdminTicketList() {
                 onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
                 onMouseLeave={e => e.currentTarget.style.background = '#fff'}
               >
+                <span style={{ fontWeight: 600, fontSize: '14px', color: '#64748b' }}>{t.id}</span>
                 <span style={{ fontWeight: 600, fontSize: '14px', color: '#0f172a' }}>{t.title}</span>
                 <span style={{ fontSize: '13px', color: '#64748b' }}>{t.category}</span>
                 <PriorityBadge priority={t.priority} />

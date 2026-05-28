@@ -66,3 +66,43 @@ def add_comment(
     db.commit()
     db.refresh(comment)
     return comment
+
+
+#  GET /tickets/{id}/comments
+@router.get("/{ticket_id}/comments", response_model=list[CommentOut])
+def get_comments(
+    ticket_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_employee),
+):
+    """
+    Get all visible comments for a ticket.
+
+    Rules:
+    - Employees can only see public comments (`is_internal=False`) on their own tickets.
+    - Support agents and admins can see all comments (including internal notes).
+    """
+    # Check ticket exists
+    ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
+    if not ticket:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Ticket {ticket_id} not found",
+        )
+
+    # Base query for this ticket's comments
+    query = db.query(Comment).filter(Comment.ticket_id == ticket_id)
+
+    # Apply visibility and access filters based on role
+    if current_user.role == UserRole.employee:
+        if ticket.created_by_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You can only view comments on your own tickets",
+            )
+        # Employees only see non-internal comments
+        query = query.filter(Comment.is_internal == False)
+
+    # Sort comments by creation time (oldest first)
+    comments = query.order_by(Comment.created_at.asc()).all()
+    return comments    

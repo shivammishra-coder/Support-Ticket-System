@@ -4,7 +4,7 @@ import api from '../api/axios'
 import Navbar from '../components/Navbar'
 import { StatusBadge, PriorityBadge } from '../components/StatusBadge'
 import CommentThread from '../components/CommentThread'
-import HistoryTimeline from '../components/HistoryTimeline'
+import HistoryTimeline from '../components/Historytimeline'
 import { useAuth } from '../context/AuthContext' // 1. Imported useAuth
 
 const ALLOWED_TRANSITIONS = {
@@ -20,20 +20,26 @@ export default function AgentTicketDetail() {
   const { user } = useAuth() // 2. Destructured user
   const [ticket, setTicket] = useState(null)
   const [history, setHistory] = useState([])
+  const [comments, setComments] = useState([])
   const [loading, setLoading] = useState(true)
   const [statusError, setStatusError] = useState('')
   const [statusLoading, setStatusLoading] = useState(false)
 
   const fetchAll = async () => {
     try {
-      const [tRes, hRes] = await Promise.all([
+      const [tRes, hRes, cRes] = await Promise.all([
         api.get(`/tickets/${id}`),
         api.get(`/tickets/${id}/history`),
+        api.get(`/tickets/${id}/comments`),
       ])
       setTicket(tRes.data)
       setHistory(hRes.data)
-    } catch (e) { console.error(e) }
-    finally { setLoading(false) }
+      setComments(cRes.data)
+    } catch (e) { 
+      console.error(e) 
+    } finally { 
+      setLoading(false) 
+    }
   }
 
   useEffect(() => { fetchAll() }, [id])
@@ -88,11 +94,11 @@ export default function AgentTicketDetail() {
             </div>
           </div>
           <p style={{ color: '#475569', fontSize: '14px', lineHeight: '1.6', margin: '0 0 16px' }}>{ticket.description}</p>
-          <div style={{ display: 'flex', gap: '24px', fontSize: '13px', color: '#64748b', flexWrap: 'wrap' }}>
-            <span>📁 {ticket.category}</span>
-            <span>👤 Raised by: {ticket.created_by.name}</span>
-            <span>📅 {new Date(ticket.created_at).toLocaleDateString()}</span>
-            {ticket.assigned_to && <span>🔧 Assigned to: {ticket.assigned_to.name}</span>}
+          <div style={{ display: 'flex', gap: '24px', fontSize: '13px',color: '#64748b', flexWrap: 'wrap' }}>
+            <span> <b>Category:</b>{ticket.category}</span>
+            <span> <b>Raised by:</b> {ticket.created_by.name}</span>
+            <span><b>Created on:</b> {new Date(ticket.created_at).toLocaleDateString()}</span>
+            {ticket.assigned_to && <span> <b>Assigned to:</b> {ticket.assigned_to.name}</span>}
           </div>
 
           {/* Status Actions (Conditional Check) */}
@@ -130,7 +136,7 @@ export default function AgentTicketDetail() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '16px' }}>
           <div style={{ background: '#fff', borderRadius: '12px', padding: '24px', border: '1px solid #e2e8f0' }}>
-            <CommentThread ticketId={ticket.id} comments={ticket.comments || []} onCommentAdded={fetchAll} />
+            <CommentThread ticketId={ticket.id} comments={comments} onCommentAdded={fetchAll} />
           </div>
           <div style={{ background: '#fff', borderRadius: '12px', padding: '24px', border: '1px solid #e2e8f0' }}>
             <h3 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '16px', color: '#1e293b' }}>Status History</h3>

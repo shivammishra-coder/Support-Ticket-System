@@ -43,6 +43,10 @@ export default function App() {
             </ProtectedRoute>
           } />
 
+
+    
+
+
           {/* Agent */}
           <Route path="/agent/queue" element={
             <ProtectedRoute roles={['support_agent', 'admin']}>
@@ -76,6 +80,10 @@ export default function App() {
               <AgentDashboard/>
             </ProtectedRoute>
           } />
+
+
+          
+
 
           {/* Admin-only register page */}
           <Route path="/admin/register" element={
