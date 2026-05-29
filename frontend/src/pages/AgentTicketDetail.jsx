@@ -140,10 +140,10 @@ export default function AgentTicketDetail() {
           </p>
 
           <div style={{ display: 'flex', gap: '24px', fontSize: '13px', color: '#64748b', flexWrap: 'wrap' }}>
-            <span>📁 {ticket.category}</span>
-            <span>👤 Raised by: {ticket.created_by.name}</span>
-            <span>📅 {new Date(ticket.created_at).toLocaleDateString()}</span>
-            <span>🔧 Assigned to: {ticket.assigned_to
+            <span> {ticket.category}</span>
+            <span> Raised by: {ticket.created_by.name}</span>
+            <span>{new Date(ticket.created_at).toLocaleDateString()}</span>
+            <span> Assigned to: {ticket.assigned_to
               ? <strong style={{ color: '#0f172a' }}>{ticket.assigned_to.name}</strong>
               : <span style={{ color: '#94a3b8' }}>Unassigned</span>}
             </span>
@@ -152,7 +152,7 @@ export default function AgentTicketDetail() {
           {/* ── Status Actions ── */}
           <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
             <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 8px', fontWeight: 600 }}>
-              {isAdmin ? '🛡️ Admin — Change Status (any transition allowed):' : 'Move to:'}
+              {isAdmin ? 'Change Status:' : 'Move to:'}
             </p>
             {allowedNext.length > 0 ? (
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -185,7 +185,7 @@ export default function AgentTicketDetail() {
               marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #f1f5f9',
             }}>
               <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 10px', fontWeight: 600 }}>
-                🛡️ Admin — Assign to Agent:
+                Assign to Agent:
               </p>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                 <select
@@ -221,7 +221,7 @@ export default function AgentTicketDetail() {
           )}
         </div>
 
-        {/* ── Comments + History ── */}
+        {/* Comments + History */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '16px' }}>
           <div style={{ background: '#fff', borderRadius: '12px', padding: '24px', border: '1px solid #e2e8f0' }}>
             <CommentThread ticketId={ticket.id} comments={comments} onCommentAdded={fetchAll} />
