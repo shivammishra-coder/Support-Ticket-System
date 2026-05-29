@@ -7,7 +7,7 @@ from app.schemas.ticket import TicketCreate
 from app.services.history_service import write_history
 
 
-# Allowed status transitions
+# ── Allowed status transitions ───────────────────────────────
 #
 #   open ──► in_progress ──► resolved ──► closed
 #                └──────────────────────► in_progress  (reopen)
@@ -20,7 +20,7 @@ ALLOWED_TRANSITIONS: dict[TicketStatus, list[TicketStatus]] = {
 }
 
 
-#Helpers
+# ── Helpers ──────────────────────────────────────────────────
 def _get_ticket_or_404(db: Session, ticket_id: int) -> Ticket:
     ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
     if not ticket:
@@ -43,7 +43,7 @@ def _validate_transition(current: TicketStatus, new: TicketStatus) -> None:
         )
 
 
-#Service functions
+# ── Service functions ────────────────────────────────────────
 
 def create_ticket(db: Session, payload: TicketCreate, current_user: User) -> Ticket:
     """Employee creates a new ticket — always starts as 'open'."""
@@ -125,7 +125,15 @@ def update_ticket_status(
     ticket = _get_ticket_or_404(db, ticket_id)
     previous_status = ticket.status
 
-    if current_user.role != UserRole.admin:
+    if current_user.role == UserRole.support_agent:
+        # Agent can only change status of tickets assigned to them
+        if ticket.assigned_to_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You can only change status of tickets assigned to you",
+            )
+        _validate_transition(previous_status, new_status)
+    elif current_user.role != UserRole.admin:
         _validate_transition(previous_status, new_status)
 
     # Update ticket

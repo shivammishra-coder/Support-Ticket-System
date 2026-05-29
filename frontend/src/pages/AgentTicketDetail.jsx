@@ -38,23 +38,19 @@ export default function AgentTicketDetail() {
   const [assignLoading, setAssignLoading] = useState(false)
   const [assignError, setAssignError]   = useState('')
   const [assignSuccess, setAssignSuccess] = useState('')
-  const [comments, setComments] = useState([])
 
   const fetchAll = async () => {
     try {
-      const [tRes, hRes, cRes] = await Promise.all([
+      const [tRes, hRes] = await Promise.all([
         api.get(`/tickets/${id}`),
         api.get(`/tickets/${id}/history`),
-        api.get(`/tickets/${id}/comments`),
       ])
       setTicket(tRes.data)
       setHistory(hRes.data)
-      setComments(cRes.data)
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setLoading(false)
-    }
+      // Pre-select current assigned agent
+      if (tRes.data.assigned_to) setAssignValue(String(tRes.data.assigned_to.id))
+    } catch (e) { console.error(e) }
+    finally { setLoading(false) }
   }
 
   // Fetch all agents for admin assign dropdown
@@ -71,7 +67,7 @@ export default function AgentTicketDetail() {
     fetchAgents()
   }, [id])
 
-  // Status change 
+  // ── Status change ──────────────────────────────────────────
   const handleStatusChange = async (newStatus) => {
     setStatusLoading(true)
     setStatusError('')
@@ -85,7 +81,7 @@ export default function AgentTicketDetail() {
     }
   }
 
-  // Assign ticket
+  // ── Assign ticket ──────────────────────────────────────────
   const handleAssign = async () => {
     if (!assignValue) return
     setAssignLoading(true)
@@ -105,10 +101,14 @@ export default function AgentTicketDetail() {
   if (loading) return <div style={{ padding: '40px', color: '#94a3b8', fontFamily: 'sans-serif' }}>Loading...</div>
   if (!ticket) return <div style={{ padding: '40px', color: '#ef4444', fontFamily: 'sans-serif' }}>Ticket not found.</div>
 
+  // Agent can only change status if the ticket is assigned to them
+  const isAssignedToMe = ticket.assigned_to?.id === user?.id
+  const canChangeStatus = isAdmin || isAssignedToMe
+
   // Which statuses to show as buttons
   const allowedNext = isAdmin
-    ? ALL_STATUSES.filter(s => s !== ticket.status)   // admin: everything except current
-    : (AGENT_TRANSITIONS[ticket.status] || [])         // agent: strict transitions only
+    ? ALL_STATUSES.filter(s => s !== ticket.status)
+    : (AGENT_TRANSITIONS[ticket.status] || [])
 
   const backPath = isAdmin ? '/admin/tickets' : '/agent/queue'
   const backLabel = isAdmin ? '← Back to All Tickets' : '← Back to Queue'
@@ -140,10 +140,10 @@ export default function AgentTicketDetail() {
           </p>
 
           <div style={{ display: 'flex', gap: '24px', fontSize: '13px', color: '#64748b', flexWrap: 'wrap' }}>
-            <span> {ticket.category}</span>
-            <span> Raised by: {ticket.created_by.name}</span>
-            <span>{new Date(ticket.created_at).toLocaleDateString()}</span>
-            <span> Assigned to: {ticket.assigned_to
+            <span>📁 {ticket.category}</span>
+            <span>👤 Raised by: {ticket.created_by.name}</span>
+            <span>📅 {new Date(ticket.created_at).toLocaleDateString()}</span>
+            <span>🔧 Assigned to: {ticket.assigned_to
               ? <strong style={{ color: '#0f172a' }}>{ticket.assigned_to.name}</strong>
               : <span style={{ color: '#94a3b8' }}>Unassigned</span>}
             </span>
@@ -151,31 +151,43 @@ export default function AgentTicketDetail() {
 
           {/* ── Status Actions ── */}
           <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
-            <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 8px', fontWeight: 600 }}>
-              {isAdmin ? 'Change Status:' : 'Move to:'}
-            </p>
-            {allowedNext.length > 0 ? (
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {allowedNext.map(s => (
-                  <button key={s} onClick={() => handleStatusChange(s)} disabled={statusLoading}
-                    style={{
-                      background: '#0f172a', color: '#fff', border: 'none',
-                      padding: '8px 16px', borderRadius: '7px', fontSize: '13px',
-                      fontWeight: 500, cursor: 'pointer', opacity: statusLoading ? 0.6 : 1,
-                    }}>
-                    → {STATUS_LABELS[s]}
-                  </button>
-                ))}
-              </div>
+            {canChangeStatus ? (
+              <>
+                <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 8px', fontWeight: 600 }}>
+                  {isAdmin ? '🛡️ Admin — Change Status (any transition allowed):' : 'Move to:'}
+                </p>
+                {allowedNext.length > 0 ? (
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    {allowedNext.map(s => (
+                      <button key={s} onClick={() => handleStatusChange(s)} disabled={statusLoading}
+                        style={{
+                          background: '#0f172a', color: '#fff', border: 'none',
+                          padding: '8px 16px', borderRadius: '7px', fontSize: '13px',
+                          fontWeight: 500, cursor: 'pointer', opacity: statusLoading ? 0.6 : 1,
+                        }}>
+                        → {STATUS_LABELS[s]}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0 }}>
+                    {ticket.status === 'closed' ? 'This ticket is closed.' : 'No transitions available.'}
+                  </p>
+                )}
+                {statusError && (
+                  <p style={{ color: '#ef4444', fontSize: '13px', margin: '8px 0 0' }}>
+                    ❌ {statusError}
+                  </p>
+                )}
+              </>
             ) : (
-              <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0 }}>
-                {ticket.status === 'closed' ? 'This ticket is closed.' : 'No transitions available.'}
-              </p>
-            )}
-            {statusError && (
-              <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '8px', margin: '8px 0 0' }}>
-                ❌ {statusError}
-              </p>
+              <div style={{
+                background: '#fffbeb', border: '1px solid #fde68a',
+                borderRadius: '8px', padding: '10px 14px',
+                fontSize: '13px', color: '#92400e',
+              }}>
+                ⚠️ This ticket is not assigned to you.
+              </div>
             )}
           </div>
 
@@ -185,7 +197,7 @@ export default function AgentTicketDetail() {
               marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #f1f5f9',
             }}>
               <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 10px', fontWeight: 600 }}>
-                Assign to Agent:
+                🛡️ Admin — Assign to Agent:
               </p>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                 <select
@@ -221,10 +233,10 @@ export default function AgentTicketDetail() {
           )}
         </div>
 
-        {/* Comments + History */}
+        {/* ── Comments + History ── */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '16px' }}>
           <div style={{ background: '#fff', borderRadius: '12px', padding: '24px', border: '1px solid #e2e8f0' }}>
-            <CommentThread ticketId={ticket.id} comments={comments} onCommentAdded={fetchAll} />
+            <CommentThread ticketId={ticket.id} comments={ticket.comments || []} onCommentAdded={fetchAll} />
           </div>
           <div style={{ background: '#fff', borderRadius: '12px', padding: '24px', border: '1px solid #e2e8f0' }}>
             <h3 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '16px', color: '#1e293b' }}>Status History</h3>
